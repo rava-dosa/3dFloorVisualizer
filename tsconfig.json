@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "baseUrl": ".",
+    "paths": {
+      "jquery": ["./node_modules/jquery/dist/jquery"]
+    },
+    "moduleResolution": "node",
+    "outDir": "./dist/",
+    "target": "es6",
+    "declaration": true,
+    "sourceMap": false,
+    "removeComments": false,
+    "esModuleInterop": true
+  }
+}
