@@ -2,6 +2,8 @@ import  {$} from '../core/event';
 import  * as Core  from "../core/utils";
 import {Wall} from "./wall";
 import {Floorplan} from "./floorplan";
+import {PubSub, PubSubEv} from "../core/pubsub"
+ 
   /** */
   const cornerTolerance: number = 20;
 
@@ -9,6 +11,8 @@ import {Floorplan} from "./floorplan";
    * Corners are used to define Walls.
    */
   export class Corner {
+    /** */
+    private pubSub: PubSub;
 
     /** Array of start walls. */
     private wallStarts: Wall[] = [];
@@ -31,6 +35,7 @@ import {Floorplan} from "./floorplan";
      * @param id An optional unique id. If not set, created internally.
      */
     constructor(private floorplan: Floorplan, public x: number, public y: number, public id?: string) {
+      this.pubSub = PubSub.getInstance()
       this.id = id || Core.Utils.guid();
     }
 
@@ -45,7 +50,7 @@ import {Floorplan} from "./floorplan";
      * @param func The function to be added.
      */
     public fireOnDelete(func) {
-      this.deleted_callbacks.add(func);
+      //this.deleted_callbacks.add(func);
     }
 
     /** Add function to action callbacks.

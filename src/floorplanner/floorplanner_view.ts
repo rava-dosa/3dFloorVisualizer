@@ -6,6 +6,7 @@ import {Room} from "../model/room";
 import {Floorplanner} from "./floorplanner";
 import {Dimensioning} from "../core/dimensioning";
 import {Utils} from "../core/utils";
+import {PubSub} from "../core/pubsub"
 import $ from "cash-dom";
 // export const floorplannerModes = {
 //     MOVE: 0,
@@ -51,7 +52,7 @@ private canvasElement: HTMLCanvasElement;
 
 /** The 2D context. */
 private context;
-
+private pubSub:PubSub;
 /** */
 constructor(private floorplan: Model_Floorplan, private viewmodel: Floorplanner, private canvas: string) {
     this.canvasElement = <HTMLCanvasElement>document.getElementById(canvas);
@@ -61,6 +62,9 @@ constructor(private floorplan: Model_Floorplan, private viewmodel: Floorplanner,
         scope.handleWindowResize();
         });
     this.handleWindowResize();
+    this.pubSub=PubSub.getInstance();
+    this.pubSub.fine_subscribe("2d","DELETE Wall",this.draw.bind(this));
+    this.pubSub.fine_subscribe("2d","INSERT Wall",this.draw.bind(this));
 }
 
 /** */

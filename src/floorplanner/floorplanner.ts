@@ -4,6 +4,7 @@ import $ from "cash-dom";
 import {FloorplannerView,floorplannerModes} from "./floorplanner_view";
 import {Floorplan} from "../model/floorplan";
 import {Corner} from "../model/corner";
+import { Wall } from '../model/wall';
 const snapTolerance = 25;
 export class Floorplanner {
 
@@ -11,7 +12,7 @@ export class Floorplanner {
     public mode = 1;
 
     /** */
-    public activeWall = null;
+    public activeWall:Wall;
 
     /** */
     public activeCorner = null;
@@ -240,10 +241,6 @@ export class Floorplanner {
       //   this.view.draw();
       // }
     }
-    private stringhelper(lastNode:Corner,corner:Corner){
-      let stringx=`INSERT wall FROM (${this.lastNode.getX()},${this.lastNode.getY()}) To (${corner.getX()},${corner.getY()})`
-      return stringx;
-    }
     /** */
     private mouseup() {
       console.log("mouseup called")
@@ -254,8 +251,6 @@ export class Floorplanner {
         var corner = this.floorplan.newCorner(this.targetX, this.targetY);
         if (this.lastNode != null) {
           //publish event
-          let eventx:PubSubEv={topic:"2d",subtopic:"INSERT wall",event_details:this.stringhelper(this.lastNode,corner)}
-          this.pubSub.publish(eventx);
           this.floorplan.newWall(this.lastNode, corner);
         }
         if (corner.mergeWithIntersected() && this.lastNode != null) {

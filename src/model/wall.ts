@@ -3,6 +3,7 @@ import {Corner} from "./corner";
 import * as Core from "../core/configuration";
 import {HalfEdge} from "./half_edge";
 import {Utils} from "../core/utils";
+import {PubSub, PubSubEv} from "../core/pubsub"
   /** The default wall texture. */
   const defaultWallTexture = {
     url: "rooms/textures/wallmap.png",
@@ -16,9 +17,11 @@ import {Utils} from "../core/utils";
    * Walls consists of two half edges.
    */
   export class Wall {
+    /** */
+    private pubSub: PubSub;
 
     /** The unique id of each wall. */
-    private id: string;
+    public id: string;
 
     /** Front is the plane from start to end. */
     public frontEdge: HalfEdge = null;
@@ -62,6 +65,7 @@ import {Utils} from "../core/utils";
      * @param end End corner.
      */
     constructor(private start: Corner, private end: Corner) {
+      this.pubSub = PubSub.getInstance();
       this.id = this.getUuid();
 
       this.start.attachStart(this)
@@ -88,13 +92,14 @@ import {Utils} from "../core/utils";
       this.moved_callbacks.add(func);
     }
 
-    public fireOnDelete(func) {
-      this.deleted_callbacks.add(func);
-    }
+    // public wall_fireOnDelete(func) {
+    //   //this.deleted_callbacks.add(func);
+    //   this.pubSub.fine_subscribe("2d", "DELETE Wall",func);
+    // }
 
-    public dontFireOnDelete(func) {
-      this.deleted_callbacks.remove(func);
-    }
+    // public dontFireOnDelete(func) {
+    //   this.deleted_callbacks.remove(func);
+    // }
 
     public fireOnAction(func) {
       this.action_callbacks.add(func)
@@ -149,7 +154,12 @@ import {Utils} from "../core/utils";
     public remove() {
       this.start.detachWall(this);
       this.end.detachWall(this);
-      this.deleted_callbacks.fire(this);
+      let eventx: PubSubEv = {
+        topic: "2d",
+        subtopic: "DELETE Wall",
+        event_details: this,
+      };
+      this.pubSub.publish(eventx);
     }
 
     public setStart(corner: Corner) {

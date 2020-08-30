@@ -6,7 +6,7 @@ import { Room } from "./room";
 // import { HalfEdge } from "./half_edge";
 import { Basic3d } from "../core/basic3d";
 import { Floorplanner } from '../floorplanner/floorplanner';
-
+import {PubSubEv,PubSub} from "../core/pubsub"
 /** */
 const defaultFloorPlanTolerance = 10.0;
 
@@ -23,7 +23,8 @@ export class Floorplan {
 
   /** */
   private rooms: Room[] = [];
-
+  private pubSub:PubSub;
+  public context;
   /** */
   // private new_wall_callbacks = $.Callbacks();
 
@@ -50,6 +51,9 @@ export class Floorplan {
   /** Constructs a floorplan. */
   constructor() {
     this.fp=new Floorplanner("renderCanvas1",this)
+    this.pubSub=PubSub.getInstance();
+    this.context=this;
+    this.pubSub.fine_subscribe("2d", "DELETE Wall",this.removeWall.bind(this));
   }
 
   // hack
@@ -87,9 +91,9 @@ export class Floorplan {
   //   });
   // }
 
-  // public fireOnNewWall(callback) {
-  //   this.new_wall_callbacks.add(callback);
-  // }
+  public fireOnNewWall(callback) {
+    this.pubSub.fine_subscribe("2d","INSERT Wall",callback)
+  }
 
   // public fireOnNewCorner(callback) {
   //   this.new_corner_callbacks.add(callback);
@@ -113,9 +117,15 @@ export class Floorplan {
     var wall = new Wall(start, end);
     this.walls.push(wall)
     var scope = this;
-    // wall.fireOnDelete(() => {
+    // wall.wall_fireOnDelete(() => {
     //   scope.removeWall(wall);
     // });
+    let eventx: PubSubEv = {
+      topic: "2d",
+      subtopic: "INSERT Wall",
+      event_details: wall
+    };
+    this.pubSub.publish(eventx);
     // this.new_wall_callbacks.fire(wall);
     this.update();
     return wall;
@@ -125,6 +135,8 @@ export class Floorplan {
    * @param wall The wall to be removed.
    */
   private removeWall(wall: Wall) {
+    // console.trace()
+    console.log(wall.id);
     Core.Utils.removeValue(this.walls, wall);
     this.update();
   }
@@ -139,9 +151,9 @@ export class Floorplan {
   public newCorner(x: number, y: number, id?: string): Corner {
     var corner = new Corner(this, x, y, id);
     this.corners.push(corner);
-    // corner.fireOnDelete(() => {
-    //   this.removeCorner;
-    // });
+    corner.fireOnDelete(() => {
+      this.removeCorner;
+    });
     // this.new_corner_callbacks.fire(corner);
     return corner;
   }

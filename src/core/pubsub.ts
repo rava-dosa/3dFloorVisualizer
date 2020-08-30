@@ -1,14 +1,15 @@
 export interface PubSubEv {
-    topic: string; //2d or 3d
-    subtopic: string; //insert {corners, edge}, update{corners, edge}, delete{corners, edge}
-    event_details:string;//complete event
+    topic: String; //2d or 3d
+    subtopic: String; //insert {corners, edge}, update{corners, edge}, delete{corners, edge}
+    event_details:any;//complete event
     type?: string;//remote or local
     id?:string;//unique id
     time?:string;//unix timestamp
   }
 interface Subs{
-    topic: string;
-    subtopic?: string;
+    topic: String;
+    subtopic?: String;
+    id?: String
     func:Function;
 }
 export class PubSub{
@@ -29,6 +30,7 @@ export class PubSub{
         return PubSub.instance;
     }
     public publish(newevent:PubSubEv):void{
+      
         this.allevent.push(newevent);
         for (let x of this.allsubs){
             if(x.topic==newevent.topic && x.subtopic==newevent.subtopic){
@@ -36,7 +38,7 @@ export class PubSub{
             }
         }
     }
-    public fine_subscribe(topicx:string,subtopicx:string,funcx:Function):void{
+    public fine_subscribe(topicx:string,subtopicx:string, funcx:Function):void{
         let temp:Subs={topic:topicx,subtopic:subtopicx,func:funcx};
         this.allsubs.push(temp);
     }
